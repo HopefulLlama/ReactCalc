@@ -1,0 +1,198 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Hello ReactCalc</title>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/JSXTransformer.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+    <style>
+      .calculator-button {
+        width: 20%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="content"></div>
+    <script type="text/jsx">
+      var CalculatorDisplay = React.createClass({
+        render: function() {
+          return (
+            <input className="calculator-display col-xs-12 form-control" type="input" readOnly data={this.props.value} value={this.props.value} />
+          );
+        }
+      });
+
+      var CalculatorButton = React.createClass({
+        render: function() {
+          return (
+            <button className="calculator-button btn btn-default btn-lg" type="button" value={this.props.value} onClick={this.props.handleClick.bind(this, this.props.value)}>{this.props.display}</button>
+          );
+        }
+      });
+
+      var CalculatorMockButton = React.createClass({
+        render: function() {
+          return (
+            <button className="calculator-button btn btn-default btn-lg" type="button">&nbsp;</button>
+          );
+        }
+      });
+
+      var Calculator = React.createClass({
+        getInitialState: function() {
+          return { 
+            overwriteDisplay: true,
+            firstValue: 0,
+            displayNumber: "0",
+            operator: null
+          }
+        },
+        reset: function() {
+          this.setState(function(previousState, currentProps) {
+            return { 
+              overwriteDisplay: true,
+              firstValue: 0,
+              displayNumber: "0",
+              operator: null
+            }
+          });
+        },
+        handleNumberUpdate: function(newNumberToInsert) {
+          this.setState(function(previousState, currentProps) {
+            if(previousState.overwriteDisplay) {
+              return {displayNumber: "" + newNumberToInsert,
+                overwriteDisplay: false
+              };
+            } else {
+              return {displayNumber: "" + parseFloat(previousState.displayNumber + newNumberToInsert)};
+            }
+          });
+        },
+        deleteLastNumber: function() {
+          this.setState(function(previousState, currentProps) {
+            if(previousState.displayNumber.length == 1) {
+              return {displayNumber: "0"};
+            } else if (previousState.displayNumber.length > 1) {
+              return {displayNumber: previousState.displayNumber.substring(0, previousState.displayNumber.length - 1)};
+            }
+          });
+        },
+        setOperator: function(newOperator) {
+          this.setState(function(previousState, currentProps) {
+            switch (previousState.operator) {
+              case null: 
+                return {operator: newOperator, 
+                  firstValue: parseFloat(previousState.displayNumber),
+                  overwriteDisplay: true
+                };
+              case "multiply":
+                return {operator: newOperator,
+                  firstValue: previousState.firstValue * parseFloat(previousState.displayNumber),
+                  overwriteDisplay: true
+                };
+              case "division":
+                return {operator: newOperator,
+                  firstValue: previousState.firstValue / parseFloat(previousState.displayNumber),
+                  overwriteDisplay: true
+                };
+              case "subtract":
+                return {operator: newOperator,
+                  firstValue: previousState.firstValue - parseFloat(previousState.displayNumber),
+                  overwriteDisplay: true
+                };
+              case "addition":
+                return {operator: newOperator,
+                  firstValue: previousState.firstValue + parseFloat(previousState.displayNumber),
+                  overwriteDisplay: true
+                };
+            }
+          });
+        },
+        changeSign: function() {
+          this.setState(function(previousState, currentProps) {
+            if(previousState.displayNumber.indexOf("-") == -1) {
+              return {displayNumber: "-" + previousState.displayNumber};
+            } else {
+              return {displayNumber: previousState.displayNumber.substring(1, previousState.displayNumber.length)};
+            }
+          });
+        },
+        calculate: function() {
+          this.setState(function(previousState, currentProps) {
+            switch(previousState.operator) {
+              case null: 
+                return {};
+              case "multiply":
+                return {operator: null,
+                  firstValue: 0,
+                  displayNumber: previousState.firstValue * parseFloat(previousState.displayNumber),
+                  overwriteDisplay: true
+                };
+              case "division":
+                return {operator: null,
+                  firstValue: 0,
+                  displayNumber: previousState.firstValue / parseFloat(previousState.displayNumber),
+                  overwriteDisplay: true
+                };
+              case "subtract":
+                return {operator: null,
+                  firstValue: 0,
+                  displayNumber: previousState.firstValue - parseFloat(previousState.displayNumber),
+                  overwriteDisplay: true
+                };
+              case "addition":
+                return {operator: null,
+                  firstValue: 0,
+                  displayNumber: previousState.firstValue + parseFloat(previousState.displayNumber),
+                  overwriteDisplay: true
+                };
+
+            }
+          });
+        },
+        render: function() {
+          return (
+            <div className="calculator container">
+              <div className="row">
+                <CalculatorDisplay value={this.state.displayNumber} />
+                <CalculatorButton value="7" display="7" handleClick={this.handleNumberUpdate}/>
+                <CalculatorButton value="8" display="8" handleClick={this.handleNumberUpdate}/>
+                <CalculatorButton value="9" display="9" handleClick={this.handleNumberUpdate}/>
+                <CalculatorButton value="" display="DEL" handleClick={this.deleteLastNumber}/>
+                <CalculatorButton value="" display="AC" handleClick={this.reset}/>
+
+                <CalculatorButton value="4" display="4" handleClick={this.handleNumberUpdate}/>
+                <CalculatorButton value="5" display="5" handleClick={this.handleNumberUpdate}/>
+                <CalculatorButton value="6" display="6" handleClick={this.handleNumberUpdate}/>
+                <CalculatorButton value="multiply" display="*" handleClick={this.setOperator}/>
+                <CalculatorButton value="division" display="/" handleClick={this.setOperator}/>
+
+
+                <CalculatorButton value="1" display="1" handleClick={this.handleNumberUpdate}/>
+                <CalculatorButton value="2" display="2" handleClick={this.handleNumberUpdate}/>
+                <CalculatorButton value="3" display="3" handleClick={this.handleNumberUpdate}/>
+                <CalculatorButton value="addition" display="+" handleClick={this.setOperator}/>
+                <CalculatorButton value="subtract" display="-" handleClick={this.setOperator}/>
+
+
+                <CalculatorButton value="blank" display="+/-" handleClick={this.changeSign}/>
+                <CalculatorButton value="0" display="0" handleClick={this.handleNumberUpdate}/>
+                <CalculatorMockButton />
+                <CalculatorMockButton />
+                <CalculatorButton value="" display="=" handleClick={this.calculate}/>
+              </div>
+            </div>
+          );
+        }
+      });
+
+      React.render(<Calculator/>, document.getElementById('content'));
+    </script>
+  </body>
+</html>
